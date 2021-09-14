@@ -143,7 +143,19 @@ contract Token {
    * @param _to The address of the recipient.
    * @param _value The amount of token to be transferred.
    */
-  function transferFrom(){
+  function transferFrom(address _from,address _to,uint256 _value) public returns (bool _success){
+    require(balances[_from] >= _value, "Insufficent Balance");
+    require(_from != _to, "You cannot send funds to yourself");
+    require(allowed[_from][msg.sender] >= _value, "Amount exceeds approved spending limit");
+    uint initialSenderBalance = balances[_from];
+    uint initialRecieverBalance = balances[_to];
+    balances[_from] -= _value;
+    balances[_to] += _value;
+    allowed[_from][msg.sender] -= _value;
+    assert(balances[_from] == initialSenderBalance - _value);
+    assert(balances[_to] == initialRecieverBalance + _value);
+    emit Transfer(_from, _to, _value);
+    _success = true;
   }
-  
-  }
+
+}
