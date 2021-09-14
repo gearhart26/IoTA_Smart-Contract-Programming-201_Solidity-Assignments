@@ -101,7 +101,49 @@ contract Token {
    * @param _to The address of the recipient.
    * @param _value The amount of token to be transferred.
    */
-  function transfer(){
+  function transfer(address payable _to, uint256 _value) public returns (bool _success){
+    require(balances[msg.sender] >= _value, "Insufficent Balance");
+    require(msg.sender != _to, "You cannot send funds to yourself");
+    uint initialSenderBalance = balances[msg.sender];
+    uint initialRecieverBalance = balances[_to];
+    balances[msg.sender] -= _value;
+    balances[_to] += _value;
+    assert(balances[msg.sender] == initialSenderBalance - _value);
+    assert(balances[_to] == initialRecieverBalance + _value);
+    emit Transfer(msg.sender, _to, _value);
+    _success = true;
+  }
+
+  /*
+   * @dev Allows _spender to withdraw/transfer from your account multiple times, up to the _value amount. If
+   * this function is called again it overwrites the current allowance with _value. SHOULD emit the Approval event.
+   * @param _spender The address of the account able to transfer the tokens.
+   * @param _value The amount of tokens to be approved for transfer.
+   */
+  function approve(address _spender,uint256 _value) public returns (bool _success) {
+    require(msg.sender != _spender, "Approval not necessary");
+    allowed[msg.sender][_spender] = _value;
+    emit Approval(msg.sender, _spender, _value);
+    _success = true;
+  }
+
+  /*
+   * @dev Returns the amount which _spender is still allowed to withdraw from _owner.
+   * @param _owner The address of the account owning tokens.
+   * @param _spender The address of the account able to transfer the tokens.
+   */
+  function allowance(address _owner,address _spender) external view returns (uint256 _remaining){
+    _remaining = allowed[_owner][_spender];
+  }
+
+  /*
+   * @dev Transfers _value amount of tokens from address _from to address _to, and MUST fire the
+   * Transfer event.
+   * @param _from The address of the sender.
+   * @param _to The address of the recipient.
+   * @param _value The amount of token to be transferred.
+   */
+  function transferFrom(){
   }
   
   }
