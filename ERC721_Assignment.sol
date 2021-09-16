@@ -43,5 +43,20 @@ contract Kittycontract {
     }
 
     Kitty[] kitties;
+
+//        adding a new mapping to keep track of how many tokens each address ownes to speed up getAllCatsFor function and improve storage design
+    mapping (address => uint256[]) public tokensOwned;
+    
+    mapping (uint256 => address) public kittyIndexToOwner;
+    mapping (address => uint256) ownershipTokenCount;
+
+    
+
+    function balanceOf(address owner) external view returns (uint256 balance){
+        return ownershipTokenCount[owner];
+    }
+
+    function totalSupply() {
+    }
     
     }
