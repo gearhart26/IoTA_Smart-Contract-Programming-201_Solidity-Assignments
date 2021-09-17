@@ -56,7 +56,37 @@ contract Kittycontract {
         return ownershipTokenCount[owner];
     }
 
-    function totalSupply() {
+    function totalSupply() public view returns (uint) {
+        return kitties.length;
     }
+
+    function ownerOf(uint256 _tokenId) external view returns (address)
+    {
+        return kittyIndexToOwner[_tokenId];
+    }
+
+    function transfer(address _to,uint256 _tokenId) external
+    {
+        require(_to != address(0));
+        require(_to != address(this));
+        require(_owns(msg.sender, _tokenId));
+
+        _transfer(msg.sender, _to, _tokenId);
+    }
+    
+//        change getAllCatsFor function to simply return value stored in mapping instead of looping through entire array
+    function getAllCatsFor(address _owner) external view returns (uint[] memory cats){
+        return tokensOwned[_owner];
+    }
+        //uint[] memory result = new uint[](ownershipTokenCount[_owner]);
+        //uint counter = 0;
+        //for (uint i = 0; i < kitties.length; i++) {
+            //if (kittyIndexToOwner[i] == _owner) {
+                //result[counter] = i;
+                //counter++;
+            //}
+        //}
+        //return result;
+     //}
     
     }
