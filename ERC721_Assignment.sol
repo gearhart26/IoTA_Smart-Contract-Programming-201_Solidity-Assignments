@@ -89,4 +89,64 @@ contract Kittycontract {
         //return result;
      //}
     
+    function createKittyGen0(uint256 _genes) public returns (uint256) {
+        return _createKitty(0, 0, 0, _genes, msg.sender);
     }
+
+    function _createKitty(
+        uint256 _mumId,
+        uint256 _dadId,
+        uint256 _generation,
+        uint256 _genes,
+        address _owner
+    ) private returns (uint256) {
+        Kitty memory _kitty = Kitty({
+            genes: _genes,
+            birthTime: uint64(block.timestamp),
+            mumId: uint32(_mumId),
+            dadId: uint32(_dadId),
+            generation: uint16(_generation)
+        });
+        
+        kitties.push(_kitty);
+
+        uint256 newKittenId = kitties.length - 1;
+
+        emit Birth(_owner, newKittenId, _mumId, _dadId, _genes);
+
+        _transfer(address(0), _owner, newKittenId);
+
+        return newKittenId;
+
+    }
+
+    function _transfer(address _from, address _to, uint256 _tokenId) internal {
+        ownershipTokenCount[_to]++;
+        kittyIndexToOwner[_tokenId] = _to;
+//            adding token Id to tokensOwned mapping for recieving address
+        tokensOwned[_to].push(_tokenId);
+        if (_from != address(0)) {
+            ownershipTokenCount[_from]--;
+//                calling _changeOwner function to remove token Id from senders tokensOwned mapping
+            _changeOwner(_from, _tokenId);
+        }
+        emit Transfer(_from, _to, _tokenId);
+    }
+
+//        function needed to remove token Ids from new mapping as tokens are transfered.
+//        using same idea as storage design example : mapping_w_Index_and_Delete.sol
+    function _changeOwner(address _from, uint _tokenId) internal {
+        uint tokenIdToMove = tokensOwned[_from][tokensOwned[_from].length-1];
+        for (uint i = 0; i < tokensOwned[_from].length; i++) {
+            if (tokensOwned[_from][i] == _tokenId) {
+                tokensOwned[_from][i] == tokenIdToMove;
+                tokensOwned[_from].pop();
+            }
+        }
+    }
+
+    function _owns(address _claimant, uint256 _tokenId) internal view returns (bool) {
+      return kittyIndexToOwner[_tokenId] == _claimant;
+  }
+
+}
